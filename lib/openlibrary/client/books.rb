@@ -12,12 +12,7 @@ module Openlibrary
         raise ArgumentError, "ISBN must be 10 or 13 characters."
       end
 
-      metadata = get_metadata("ISBN", isbn)
-
-      if metadata
-        olid = extract_olid_from_url(metadata["info_url"], "books")
-        book(olid)
-      end
+      request("/isbn/#{isbn}")
     end
 
     def book_by_lccn(lccn)
