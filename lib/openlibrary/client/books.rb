@@ -8,8 +8,6 @@ module Openlibrary
     end
 
     def book_by_isbn(isbn)
-      type = "/type/edition"
-
       if isbn.length != 10 || isbn.length != 13
         raise ArgumentError, "ISBN must be 10 or 13 characters."
       end
@@ -23,13 +21,21 @@ module Openlibrary
     end
 
     def book_by_lccn(lccn)
-      type = "/type/edition"
-      data = query("type=#{type}&lccn=#{lccn}")
+      metadata = get_metadata("lccn", lccn)
+
+      if metadata
+        olid = extract_olid_from_url(metadata["info_url"], "books")
+        book(olid)
+      end
     end
 
     def book_by_oclc(oclc)
-      type = "/type/edition"
-      data = query("type=#{type}&oclc_numbers=#{oclc}")
+      metadata = get_metadata("oclc", oclc)
+
+      if metadata
+        olid = extract_olid_from_url(metadata["info_url"], "books")
+        book(olid)
+      end
     end
 
     def get_metadata(key, value)
