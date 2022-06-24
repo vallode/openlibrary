@@ -9,12 +9,16 @@ module Openlibrary
 
     def book_by_isbn(isbn)
       type = "/type/edition"
-      if isbn.length == 10
-        data = query("type=#{type}&isbn_10=#{isbn}")
-      elsif isbn.length == 13
-        data = query("type=#{type}&isbn_13=#{isbn}")
-      else
+
+      if isbn.length != 10 || isbn.length != 13
         raise ArgumentError, "ISBN must be 10 or 13 characters."
+      end
+
+      metadata = get_metadata("ISBN", isbn)
+
+      if metadata
+        olid = extract_olid_from_url(metadata["info_url"], "books")
+        book(olid)
       end
     end
 
@@ -26,6 +30,23 @@ module Openlibrary
     def book_by_oclc(oclc)
       type = "/type/edition"
       data = query("type=#{type}&oclc_numbers=#{oclc}")
+    end
+
+    def get_metadata(key, value)
+      _key = "#{key}:#{value}"
+      data = request("/api/books.json?bibkeys=#{_key}", {})
+
+      if data.include? _key
+        data[_key]
+      end
+    end
+
+    def extract_olid_from_url(url, url_type)
+      ol_url_pattern = /\/#{Regexp.quote(url_type)}\/([0-9a-zA-Z]+)/
+
+      ol_url_pattern.match(url) do |m|
+        m.captures[0]
+      end
     end
   end
 end
