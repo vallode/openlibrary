@@ -8,7 +8,7 @@ module Openlibrary
     end
 
     def book_by_isbn(isbn)
-      if isbn.length != 10 || isbn.length != 13
+      if isbn.length != 10 && isbn.length != 13
         raise ArgumentError, "ISBN must be 10 or 13 characters."
       end
 
